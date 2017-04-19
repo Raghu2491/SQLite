@@ -2,6 +2,7 @@ package com.example.raghu_gowda.a_sqlite;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -11,10 +12,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "Student.db";
     public static final String TABLE_NAME = "student_table";
-    public static final String COL1="ID";
-    public static final String COL2="NAME";
-    public static final String COL3="SURNAME";
-    public static final String COL4= "MARKS";
+    public static final String ID="ID";
+    public static final String NAME="NAME";
+    public static final String SURNAME="SURNAME";
+    public static final String MARKS= "MARKS";
 
     public DatabaseHelper(Context context) {
         //--- database is created in this constructor
@@ -25,10 +26,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String query = "create table " + TABLE_NAME + "(" + COL1 + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + COL2 + " TEXT, " + COL3 + " TEXT, "+ COL4 + " INTEGER)";
-
-        System.out.println("----------> "+query );
+        String query = "create table " + TABLE_NAME + "(" + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + NAME + " TEXT, " + SURNAME + " TEXT, "+ MARKS + " INTEGER)";
         db.execSQL(query);
 
     }
@@ -44,9 +43,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(COL2,name);
-        contentValues.put(COL3,surname);
-        contentValues.put(COL4,marks);
+        contentValues.put(NAME,name);
+        contentValues.put(SURNAME,surname);
+        contentValues.put(MARKS,marks);
 
         long result = db.insert(TABLE_NAME,null,contentValues);
 
@@ -56,4 +55,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return true;
 
     }
+
+    // --------------
+
+    public String getMarks(String name){
+        SQLiteDatabase db=this.getReadableDatabase();
+        String[] args={name};
+        String[] columns={MARKS};
+
+        Cursor cursor= db.query(TABLE_NAME,columns,MARKS + "= ?",args,null,null,null);
+
+        StringBuffer stringBuffer=new StringBuffer();
+
+        while (cursor.moveToNext()){
+            int index=cursor.getColumnIndex(NAME);
+
+            stringBuffer.append(cursor.getString(index)+"\n");
+        }
+
+        return stringBuffer.toString();
+    }
+
+    public int updateMarks(String name,String new_marks){
+        String[] args={name};
+
+        ContentValues contentValues=new ContentValues();
+        contentValues.put(MARKS,new_marks);
+
+        SQLiteDatabase db=this.getWritableDatabase();
+
+        return db.update(TABLE_NAME,contentValues,MARKS + "= ?", args);
+
+    }
+
 }
